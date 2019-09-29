@@ -1,0 +1,498 @@
+ 
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<link rel="icon" type="image/png" href="favicon.ico" />
+	<title> Add To-Do to Things </title>
+	<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!-- Styles -->
+	<link rel="stylesheet" href="shared.css">
+<!-- Queue -->
+	<script>
+		var queue = []
+	</script>
+	<style scoped="" type="text/css">		
+			.linkbuilder {
+				/* Layout */
+				padding: 4% 5%;
+				margin: 20px 0;
+				/* Typography */
+				font-family: -apple-system, sans-serif;
+				font-size: 14px;
+				/* Appearance */
+				background: #f4f5f6;
+				border-radius: 10px;
+			}
+			
+			.linkbuilder-nav {
+				padding-bottom: 5px;
+			}
+			
+			.linkbuilder-row {
+				margin-bottom: 16px;
+			}
+			
+			.linkbuilder .linkbuilder-help {
+				/* Layout */
+				display: inline-block;
+				width: 1.25em;
+				height: 1.25em;
+				vertical-align: 20%;
+				/* Typography */
+				font-size: 0.66em;
+				font-weight: 700;
+				line-height: 1.25em;
+				text-align: center;
+				text-decoration: none !important;
+				/* Appearance */
+				color: #05101c;
+				border-radius: 100px;
+				border: 1px solid #05101c;
+				opacity: 0.5;
+			}
+			.linkbuilder .linkbuilder-help:hover {
+				background: hsla(212, 71%, 6%, 0.2);
+			}
+			
+			.linkbuilder label {
+				cursor: default;
+			}
+			
+			.linkbuilder code {
+				color: inherit;
+				background: none;
+				border: none;
+				padding: 0;
+				font-size: inherit;
+				font-weight: 400;
+			}
+			
+			.linkbuilder input.linkbuilder-field,
+			.linkbuilder textarea.linkbuilder-field {
+				/* Layout */
+				display: block;
+				width: 100%;
+				max-width: 100%;
+				/* Typography */
+				font-size: inherit;
+			}
+			.linkbuilder input.linkbuilder-token,
+			.linkbuilder textarea.linkbuilder-token {
+				/* Layout */
+				display: block;
+				width: 100%;
+				max-width: 100%;
+				/* Typography */
+				font-size: inherit;
+			}
+			.browser-is-iphone .linkbuilder input.linkbuilder-field,
+			.browser-is-iphone .linkbuilder textarea.linkbuilder-field {
+				font-size: 16px;
+			}
+			
+			.linkbuilder-output {
+				/* Layout */
+				padding: 0.5em 1em;
+				margin: 5px 0 30px 0;
+				/* Typography */
+				color: hsla(212, 71%, 6%, 0.75);
+				font-family: SFMono-Regular, Menlo, "Andale Mono", Consolas, monospace;
+				font-weight: 600;
+				/* Appearance */
+				border-radius: 4px;
+				background: hsla(212, 71%, 6%, 0.10);
+				/* Soft Wrapping */
+				overflow: hidden;
+				white-space: -moz-pre-wrap !important;
+				white-space: -o-pre-wrap;
+				white-space: pre-wrap;
+				word-wrap: break-word; /* IE */
+			}
+			.linkbuilder-output a {
+				color: inherit;
+			}
+			.slice.for-article {
+				padding-top: 40px;
+				padding-bottom: 40px
+			}
+			.tooltip
+{
+	display: inline-block;
+	position: relative;
+	cursor: pointer;
+	color: #2474e5;
+	text-decoration: none;
+}
+
+.tooltip:hover { text-decoration: underline; }
+
+.tooltip-bubble
+{
+	display: block;
+	width: 200px;
+	padding: 13px 14px 15px 14px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 10000;
+	font-family: -apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',sans-serif;
+	font-size: 14px;
+	line-height: 1.25;
+	font-weight: 400;
+	text-decoration: none;
+	color: #303336;
+	background: #fff;
+	border: 1px solid rgba(0,0,0,.1);
+	border-radius: 6px;
+	box-shadow: 0 2px 8px rgba(0,0,0,.15);
+	-webkit-background-clip: padding-box;
+	-moz-background-clip: padding;
+	background-clip: padding-box;
+	-webkit-transition: opacity .1s ease-out,-webkit-transform .1s ease-out;
+	-moz-transition: opacity .1s ease-out,-moz-transform .1s ease-out;
+	-ms-transition: opacity .1s ease-out,-ms-transform .1s ease-out;
+	transition: opacity .1s ease-out,transform .1s ease-out;
+}
+
+.tooltip-bubble
+{
+	visibility: hidden;
+	opacity: 0;
+	-webkit-transform: translate(0,16px) scale(.9);
+	-moz-transform: translate(0,16px) scale(.9);
+	-ms-transform: translate(0,16px) scale(.9);
+	transform: translate(0,16px) scale(.9);
+}
+
+.browser-is-click .tooltip-bubble:hover,.tooltip-bubble.is-visible
+{
+	visibility: visible;
+	opacity: 1;
+	-webkit-transform: translate(0,0) scale(1);
+	-moz-transform: translate(0,0) scale(1);
+	-ms-transform: translate(0,0) scale(1);
+	transform: translate(0,0) scale(1);
+}
+
+.tooltip-bubble.is-large,.tooltip-bubble.style-large { width: 300px; }
+
+.tooltip-bubble a
+{
+	color: #2474e5;
+	text-decoration: none;
+}
+
+.tooltip-bubble a:hover { text-decoration: underline; }
+	</style>
+</head>
+<body>
+<script>
+	function getDevices()
+	{
+			// create XMLHttpRequest request
+			var xhr = new XMLHttpRequest()
+			xhr.open("GET", "https://api.pushbullet.com/v2/devices", false)
+			xhr.setRequestHeader("Authorization", "Bearer " + getAuthToken('pushbullet-auth-token'))
+			
+			xhr.send()	
+	}
+	function createPush()
+	{
+			// get the To-Do tile
+			var name = document.getElementsByClassName("linkbuilder-field")[0].value
+			
+			// get the URL
+			var url = document.getElementsByClassName("linkbuilder-output")[0].getElementsByTagName('a')[0].href;
+			
+			// create XMLHttpRequest request
+			var xhr = new XMLHttpRequest()
+			xhr.open("POST", "https://api.pushbullet.com/v2/pushes", false)
+			xhr.setRequestHeader("Authorization", "Bearer " + getAuthToken('pushbullet-auth-token'))
+			xhr.setRequestHeader("Content-Type", "application/json")
+			var json = '{"type": "link", "title": "Things To-Do: ' + name + '", "url": "' + url + '"}';						
+			xhr.send(json)
+		}
+		
+	function saveAuthToken(tokenType)
+	{
+			// store token in local storage
+			var authtoken;
+			if (tokenType == "auth-token")
+			{
+				var authtoken = document.getElementById("auth-token").value;
+				window.localStorage.setItem("auth-token", authtoken);
+			}
+			else
+			{
+				var authtoken = document.getElementById("pushbullet-auth-token").value;
+				window.localStorage.setItem("pushbullet-auth-token", authtoken);
+			}
+			
+			//console.log('saving ' + tokenType + ' :' + authtoken);		
+	}
+	
+	function getAuthToken(tokenType)
+	{
+			var authtoken;
+			if (tokenType == "auth-token")
+			{
+				// retrieve token from local storage
+				authtoken = window.localStorage.getItem('auth-token');
+			}
+			else
+			{
+				// retrieve token from local storage
+				authtoken = window.localStorage.getItem('pushbullet-auth-token');
+			}
+			
+			//console.log('retrieving ' + tokenType + ' :' + authtoken);		
+			return authtoken		
+	}
+	
+		
+	var linkbuilder = {
+		
+		init: function(elements) {	
+			for (var i=0; i<elements.length; ++i) {
+				// General
+				var element = elements.eq(i);
+				if (element.hasClass('is-initialized')) { return; }
+				element.addClass('is-initialized');
+	
+				// Help
+				var helps = element.find('.linkbuilder-help');
+				for (var j=0; j<helps.length; ++j) {
+					var help = helps.eq(j);
+					var linkedDtElement = $(help.attr('href'));
+					var linkedDdElement = linkedDtElement.next();
+					var newElement = $('<span class="linkbuilder-help tooltip" title="'+linkedDdElement.text()+'">'+help.text()+'</span>');
+					help.replaceWith(newElement);
+				}
+				helps = element.find('.linkbuilder-help')
+				tooltip.init(helps);
+				
+				// Form and Link Generator
+				var textfieldsAndCheckboxes = element.find('.linkbuilder-field, .linkbuilder-checkbox');
+				var commands = element.find('.linkbuilder-command');
+				textfieldsAndCheckboxes.on('input change', $.proxy(function(event) {
+					var command = $(event.currentTarget).closest('.linkbuilder-command');
+					this.update(command);
+				}, this));
+				
+				// Retrieve the auth token from local storage and set it
+			    document.getElementById("auth-token").value = getAuthToken('auth-token');
+			    document.getElementById("pushbullet-auth-token").value = getAuthToken('pushbullet-auth-token');	
+			    
+			    this.update(commands);				
+			}
+		},
+							
+		update: function(commandElements) {
+			for (var i=0; i<commandElements.length; ++i) {
+				var link = this.createLink(commandElements.eq(i));
+				var output = commandElements.eq(i).find('.linkbuilder-output').eq(0);
+				if (output.html() !== link) {
+					/* only change DOM if necessary, otherwise clicking the link doesn’t work directly, while you’re still making changes in a textfield (clicking outside the textfield fires a 'change' event, and if that changes the DOM, the link doesn’t work) */
+					output.html(link);					
+				}
+			}
+	
+		},
+		
+		createLink: function(commandElement) {
+			var command = commandElement.data('command');
+			var fields = commandElement.find('.linkbuilder-field');
+			var checkboxes = commandElement.find('.linkbuilder-checkbox');
+			var parameters = [];
+			for (var i=0; i<fields.length; ++i) {
+				if (fields[i].value) {
+					parameters.push(fields[i].name+'='+encodeURIComponent(fields[i].value));
+				}
+			}
+			for (var i=0; i<checkboxes.length; ++i) {
+				var parameterIsTrueByDefault = false; /* currently no parameter is true by default */
+				var parameterNeedsToBeSet = (checkboxes[i].checked) || (parameterIsTrueByDefault && checkboxes[i].checked === false);
+				if (parameterNeedsToBeSet) {
+					parameters.push(checkboxes[i].name+'='+checkboxes[i].checked);
+				}
+			}
+			var authtoken = document.getElementById("auth-token").value;										
+			var url = 'things:///'+command+'?'+parameters.join('&amp;');
+			var hiddenUrl = url + '&amp;' + 'auth-token=' + authtoken
+			return output = '<a href="'+hiddenUrl+'">'+url+'</a>';
+		}
+		
+	}
+	
+	if (typeof queue !== 'undefined') {
+		queue.push(function() {
+			linkbuilder.init($('.linkbuilder'));
+		});
+	}
+</script>
+<div class="page">
+	<div class="slice for-article">
+		<div class="container is-compact">
+			<div class="document">
+				<h1 class="h1 is-strong" id="link-builder">
+					Add To-Do to Things 
+				</h1>
+				<div class="linkbuilder">
+					<div class="linkbuilder-frame">
+						<div class="linkbuilder-pane">
+							<div class="linkbuilder-command" data-command="add">
+								<div class="linkbuilder-output">
+									things:///... 
+								</div>
+								<div>
+									<button type="button" onclick="createPush()">Send to Pushbullet</button> 
+								</div>
+								<div>
+									&nbsp; 
+								</div>
+								<div class="linkbuilder-form">
+									<div class="linkbuilder-row">
+										<label><code>title</code></label> <a class="linkbuilder-help" href="#add-parameter-title">?</a> / <label><code>titles</code></label> <a class="linkbuilder-help" href="#add-parameter-titles">?</a> 
+										<input autocomplete="off" class="linkbuilder-field" name="title" placeholder="a title" type="text" />
+										<textarea class="linkbuilder-field" name="titles" placeholder="or multiple to-do titles separated by new lines"></textarea>
+									</div>
+									<div class="linkbuilder-row">
+										<label><code>notes</code></label> <a class="linkbuilder-help" href="#add-parameter-notes">?</a><textarea class="linkbuilder-field" name="notes" placeholder=""></textarea>
+									</div>
+									<div class="linkbuilder-row">
+										<label><code>checklist-items</code></label> <a class="linkbuilder-help" href="#add-parameter-checklist-items">?</a><textarea class="linkbuilder-field" name="checklist-items" placeholder="separated by new lines"></textarea>
+									</div>
+									<div class="linkbuilder-row">
+										<label><code>when</code></label> <a class="linkbuilder-help" href="#add-parameter-when">?</a> 
+										<input autocomplete="off" class="linkbuilder-field" name="when" placeholder="e.g. 2018-03-25 or in 3 days" type="text" />
+									</div>
+									<div class="linkbuilder-row">
+										<label><code>deadline</code></label> <a class="linkbuilder-help" href="#add-parameter-deadline">?</a> 
+										<input autocomplete="off" class="linkbuilder-field" name="deadline" placeholder="e.g. 2018-03-25 or in 3 days" type="text" />
+									</div>
+									<div class="linkbuilder-row">
+										<label><code>tags</code></label> <a class="linkbuilder-help" href="#add-parameter-tags">?</a> 
+										<input autocomplete="off" class="linkbuilder-field" name="tags" placeholder="e.g. home,errand" type="text" />
+									</div>
+									<div class="linkbuilder-row">
+										<label><code>list</code></label> <a class="linkbuilder-help" href="#add-parameter-list">?</a> / <label><code>list-id</code></label> <a class="linkbuilder-help" href="#add-parameter-list-id">?</a> 
+										<input autocomplete="off" class="linkbuilder-field" name="list" placeholder="project or area title" type="text" />
+										<input autocomplete="off" class="linkbuilder-field" name="list-id" placeholder="or ID" type="text" />
+									</div>
+									<div class="linkbuilder-row">
+										<label><code>heading</code></label> <a class="linkbuilder-help" href="#add-parameter-heading">?</a> 
+										<input autocomplete="off" class="linkbuilder-field" name="heading" placeholder="" type="text" />
+									</div>
+									<div class="linkbuilder-row">
+										<label><code>creation-date</code></label> <a class="linkbuilder-help" href="#add-parameter-creation-date">?</a> 
+										<input autocomplete="off" class="linkbuilder-field" name="creation-date" placeholder="" type="text" />
+									</div>
+									<div class="linkbuilder-row">
+										<label><code>completion-date</code></label> <a class="linkbuilder-help" href="#add-parameter-completion-date">?</a> 
+										<input autocomplete="off" class="linkbuilder-field" name="completion-date" placeholder="" type="text" />
+									</div>
+									<div class="linkbuilder-row">
+										<label> 
+										<input class="linkbuilder-checkbox" name="completed" type="checkbox" />
+										<code>completed</code></label> <a class="linkbuilder-help" href="#add-parameter-completed">?</a> or <label> 
+										<input class="linkbuilder-checkbox" name="canceled" type="checkbox" />
+										<code>canceled</code></label> <a class="linkbuilder-help" href="#add-parameter-canceled">?</a><br />
+										<label> 
+										<input class="linkbuilder-checkbox" name="show-quick-entry" type="checkbox" checked />
+										<code>show-quick-entry</code></label> <a class="linkbuilder-help" href="#add-parameter-show-quick-entry">?</a><br />
+										<label> 
+										<input class="linkbuilder-checkbox" name="reveal" type="checkbox" />
+										<code>reveal</code></label> <a class="linkbuilder-help" href="#add-parameter-reveal">?</a> 
+									</div>
+									<div class="linkbuilder-row">
+										<label><code>auth-token</code></label> <a class="linkbuilder-help" href="#add-parameter-auth-token">?</a> 
+										<input autocomplete="off" class="linkbuilder-token" name="auth-token" placeholder="" type="text" id="auth-token">
+										<button type="button" onclick="saveAuthToken('auth-token')">Save</button> 
+									</div>
+									<div class="linkbuilder-row">
+										<label><code>pushbullet-auth-token</code></label> <a class="linkbuilder-help" href="#add-parameter-pushbullet-auth-token">?</a> 
+										<input autocomplete="off" class="linkbuilder-token" name="pushbullet-auth-token" placeholder="" type="text" id="pushbullet-auth-token">
+										<button type="button" onclick="saveAuthToken('puahbullet-auth-token')">Save</button> 
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div style="visibility: hidden">
+				<dl> 
+					<dt id="add-parameter-title"><code>title</code></dt>
+					<dd>String. The title of the to-do to add. Ignored if <code>titles</code> is also specified.</dd>
+					<dt id="add-parameter-titles"><code>titles</code></dt>
+					<dd>String separated by new lines (encoded to <code>%0a</code>). Use instead of <code>title</code> to create multiple to-dos. Takes priority over <code>title</code> and <code>show-quick-entry</code>. The other parameters are applied to all the created to-dos.</dd>
+					<dt id="add-parameter-notes"><code>notes</code></dt>
+					<dd>String. The text to use for the notes field of the to-do. Maximum unencoded length: 10,000 characters.</dd>
+					<dt id="add-parameter-when"><code>when</code></dt>
+					<dd>String. Possible values: <code>today</code>, <code>tomorrow</code>, <code>evening</code>, <code>anytime</code>, <code>someday</code>, a <a class="scroller" href="#overview-data-types-date-string">date string</a>, or a <a class="scroller" href="#overview-data-types-date-time-string">date time string</a>. Using a date time string adds a reminder for that time. The time component is ignored if <code>anytime</code> or <code>someday</code> is specified.</dd>
+					<dt id="add-parameter-deadline"><code>deadline</code></dt>
+					<dd><a class="scroller" href="#overview-data-types-date-string">Date string</a>. The deadline to apply to the to-do.</dd>
+					<dt id="add-parameter-tags"><code>tags</code></dt>
+					<dd>Comma separated strings corresponding to the titles of tags. Does not apply a tag if the specified tag doesn&rsquo;t exist.</dd>
+					<dt id="add-parameter-checklist-items"><code>checklist-items</code></dt>
+					<dd>String separated by new lines (encoded to <code>%0a</code>). Checklist items to add to the to-do (maximum of 100).</dd>
+					<dt id="add-parameter-use-clipboard"><code>use-clipboard</code></dt>
+					<dd>String. Possible values can be <code>replace-title</code> (newlines overflow into notes, replacing them), <code>replace-notes</code>, or <code>replace-checklist-items</code> (newlines create multiple checklist rows). Takes priority over <code>title</code>, <code>notes</code>, or <code>checklist-items</code>.</dd>
+					<dt id="add-parameter-list-id"><code>list-id</code></dt>
+					<dd>String. The ID of a project or area to add to. Takes precedence over <code>list</code>.</dd>
+					<dt id="add-parameter-list"><code>list</code></dt>
+					<dd>String. The title of a project or area to add to. Ignored if <code>list-id</code> is present.</dd>
+					<dt id="add-parameter-heading"><code>heading</code></dt>
+					<dd>String. The title of a heading within a project to add to. Ignored if a project is not specified, or if the heading doesn&#39;t exist.</dd>
+					<dt id="add-parameter-completed"><code>completed</code></dt>
+					<dd>Boolean. Whether or not the to-do should be set to complete. Default: <code>false</code>. Ignored if <code>canceled</code> is also set to <code>true</code>.</dd>
+					<dt id="add-parameter-canceled"><code>canceled</code></dt>
+					<dd>Boolean. Whether or not the to-do should be set to canceled. Default: <code>false</code>. Takes priority over <code>completed</code>.</dd>
+					<dt id="add-parameter-show-quick-entry"><code>show-quick-entry</code></dt>
+					<dd>Boolean. Whether or not to show the quick entry dialog (populated with the provided data) instead of adding a new to-do. Ignored if <code>titles</code> is specified. Default: <code>false</code>.</dd>
+					<dt id="add-parameter-reveal"><code>reveal</code></dt>
+					<dd>Boolean. Whether or not to navigate to and show the newly created to-do. If multiple to-dos have been created, the first one will be shown. Ignored if <code>show-quick-entry</code> is also set to <code>true</code>. Default: <code>false</code>.</dd>
+					<dt id="add-parameter-creation-date"><code>creation-date</code></dt>
+					<dt id="add-parameter-auth-token"><code>auth-token</code></dt>
+					<dd>String. The Things URL scheme <a class="scroller" href="#overview-authorization">authorization token</a>.</dd>
+					<dd><a class="scroller" href="#overview-data-types-iso8601">ISO8601 date time string</a>. The date to set as the creation date for the to-do in the database. Ignored if the date is in the future.</dd>
+					<dt id="add-parameter-completion-date"><code>completion-date</code></dt>
+					<dd><a class="scroller" href="#overview-data-types-iso8601">ISO8601 date time string</a>. The date to set as the completion date for the to-do in the database. Ignored if the to-do is not completed or canceled, or if the date is in the future.</dd>
+				</dl>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+<!-- BOTTOM SCRIPTS -->
+<!-- jQuery -->
+<script src="jquery-3.2.1.min.js">
+</script>
+<script src="shared.min.js">
+</script>
+<!-- Page -->
+<script>
+	$(document).ready(function() {
+	  
+	  browser.init($('html'));
+	  motion.init($('.motion'));
+	  video.init($('.video'));
+	  retinaimage.init($('.retinaimage'));
+	  tooltip.init($('.tooltip'));
+	  scroller.init($('.scroller'));
+	  platformbox.init($('.platformbox'));
+	  tabs.init($('.tabs'));
+	  segmentedcontrol.init($('.segmentedcontrol'));
+	  
+	  // Execute queued function calls
+	  if (typeof queue !== 'undefined') {
+	    for (var i=0; i<queue.length; ++i) {
+	      queue[i]();
+	    }
+	  }
+	});
+</script>
+</body>
+</html>
