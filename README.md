@@ -20,7 +20,7 @@
 5. Make note of your authentication token
 
 ## Try it out
-1. Navigate to the  [Things to Pushbullet Page](http://things-to-pushbullet.s3.amazonaws.com/Things-to-Pushbullet.html) 
+1. Navigate to the  [Things to Pushbullet Page](https://omarshahine.github.io/things-to-pushbullet/Things-to-Pushbullet.html) 
 2. Enter the Things Authentication token into the **auth-token** field on the page and click **Save**
 3. Enter the Pushbullet Access token into the **pushbullet-auth-token** field on the page and click **Save**
 4. Enter a title and any other data you like and click **Send to Pushbullet**
