@@ -1,37 +1,32 @@
-## Welcome to GitHub Pages
+# Things To Pushbullet Instructions
 
-You can use the [editor on GitHub](https://github.com/omarshahine/things-to-pushbullet/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+## Set up Pushbullet
+1. Get a  [Pushbullet Account](https://www.pushbullet.com/) 
+2. Install the  [Pushbullet App](https://apps.apple.com/us/app/pushbullet/id810352052)  on your iOS device
+3. Sign into Pushbullet on your iOS device (note if Push notifications don’t work, sign out and sign in again on the iOS device)
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Get your Pushbullet Access Token
+1. Go to the  [Pushbullet Account Page](https://www.pushbullet.com/#settings/account) 
+2. Click **Create Access Token**
+3. Make note of your access token
 
-### Markdown
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## Get your Things Authentication Token
+**on iOS**
+1. Launch Things
+2. Go to Settings (bottom of screen)
+3. Go to General
+4. Select Things URLs
+5. Make note of your authentication token
 
-```markdown
-Syntax highlighted code block
+## Try it out
+1. Navigate to the  [Things to Pushbullet Page](http://things-to-pushbullet.s3.amazonaws.com/Things-to-Pushbullet.html) 
+2. Enter the Things Authentication token into the **auth-token** field on the page and click **Save**
+3. Enter the Pushbullet Access token into the **pushbullet-auth-token** field on the page and click **Save**
+4. Enter a title and any other data you like and click **Send to Pushbullet**
 
-# Header 1
-## Header 2
-### Header 3
+You should get a notification
+![Notification](resources/IMG_0096.jpeg)
+tapping the notification will display this
+![To-Do](resources/IMG_0097.jpeg)
 
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/omarshahine/things-to-pushbullet/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
