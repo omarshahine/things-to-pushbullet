@@ -235,22 +235,21 @@
 	
 	function getAuthToken(tokenType)
 	{
-			var authtoken;
-			if (tokenType == "auth-token")
-			{
-				// retrieve token from local storage
-				authtoken = window.localStorage.getItem('auth-token');
-			}
-			else
-			{
-				// retrieve token from local storage
-				authtoken = window.localStorage.getItem('pushbullet-auth-token');
-			}
-			
-			//console.log('retrieving ' + tokenType + ' :' + authtoken);		
-			return authtoken		
+		var authtoken;
+		if (tokenType == "auth-token")
+		{
+			// retrieve token from local storage
+			authtoken = window.localStorage.getItem('auth-token');
+		}
+		else
+		{
+			// retrieve token from local storage
+			authtoken = window.localStorage.getItem('pushbullet-auth-token');
+		}
+
+		//console.log('retrieving ' + tokenType + ' :' + authtoken);		
+		return authtoken		
 	}
-	
 		
 	var linkbuilder = {
 		
@@ -281,10 +280,32 @@
 					this.update(command);
 				}, this));
 				
-				// Retrieve the auth token from local storage and set it
-			    document.getElementById("auth-token").value = getAuthToken('auth-token');
-			    document.getElementById("pushbullet-auth-token").value = getAuthToken('pushbullet-auth-token');	
-			    
+				// ff auth tokens are in the URL get from URL else get from storage
+				// Assuming "?post=1234&action=edit"
+				var urlParams = new URLSearchParams(window.location.search);
+		
+				console.log(urlParams.has('auth-token'));
+				if (urlParams.has('auth-token')) // true
+				{
+					document.getElementById("auth-token").value = urlParams.get('auth-token')
+				}
+				else
+				{
+					// Retrieve the auth token from local storage and set it
+					document.getElementById("auth-token").value = getAuthToken('auth-token');
+				}
+				
+				console.log(urlParams.has('pushbullet-auth-token'));
+				if (urlParams.has('pushbullet-auth-token')) // true
+				{
+					document.getElementById("pushbullet-auth-token").value = urlParams.get('pushbullet-auth-token')
+				}
+				else
+				{
+					// Retrieve the auth token from local storage and set it
+					document.getElementById("pushbullet-auth-token").value = getAuthToken('pushbullet-auth-token');
+				}
+			
 			    this.update(commands);				
 			}
 		},
